@@ -33,8 +33,10 @@ useEffect(()=>{
        setButton(true)
       })
        .catch(error=>setError({error})) 
+       
   } 
-},[name, page])
+
+},[button, images, name, page])
 
 
  const nextPage= ()=>{
@@ -45,7 +47,8 @@ useEffect(()=>{
       top: document.documentElement.scrollHeight,
       behavior: 'smooth',
     })
-   }, 200);
+   }, 500);
+
   }
 
   const toggleModal =(e)=>{
