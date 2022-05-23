@@ -1,73 +1,72 @@
 import { BallTriangle } from  'react-loader-spinner'
-import React from 'react';
+import {useState,useEffect} from 'react';
 import Searchbar from '../Searchbar/Searchbar'
 import ImageGallery from '../ImageGallery/ImageGallery'
 import Button from '../Button/Button'
 import Modal from '../Modal/Modal'
-export class App extends React.Component{
+import { mapper } from 'utils/mapper';
+export const App =() => {
+  const [name,setName] = useState("")
+  const [images,setImages] = useState([])
+  const [page,setPage] = useState (1)
+  const [button,setButton] = useState(false)
+  const [OpenModal,setOpenModal] = useState(false)
+  const [largeImageURL,setlargeImageURL] = useState("")
+  const [error,setError] = useState(null)
 
-state={
-  name :'',
-  images: [],
-  page : 1,
-  button : false,
-  OpenModal: false,
-  largeImageURL: "",
-  error: null
+const onSubmit =(name)=>{
+  setName(name)
+  setButton("loading")
+  setImages([])
 }
+useEffect(()=>{
+  if (button === "loading") {
+      fetch(`https://pixabay.com/api/?q=${name}&page=${page}&key=27418911-93356d597301e385c1931efc9&image_type=photo&orientation=horizontal&per_page=12&id`)
+      .then(res => {
+        if(res.ok){
+        return res.json()}
+      return Promise.reject(new Error('Нет такой картинки'))
+      })
+      .then((res) => mapper(res.hits))
+      .then((img) =>{
+       setImages([...images,...img])
+       setButton(true)
+      })
+       .catch(error=>setError({error})) 
+  } 
+},[name, page])
 
-onSubmit =(name)=>{
-  this.setState({name,images: [],
-    page : 1,button : "loading"})
-}
 
-componentDidUpdate(prevProps,prevState){
-  if (this.state.button === "loading") {  
-    setTimeout(() => {
-    fetch(`https://pixabay.com/api/?q=${this.state.name}&page=${this.state.page}&key=27418911-93356d597301e385c1931efc9&image_type=photo&orientation=horizontal&per_page=12 `)
-    .then(res => {
-      if(res.ok){
-      return res.json()}
-    return Promise.reject(new Error('Нет такой картинки'))
-    })
-    .then(images =>{
-     this.setState(()=> {  return {images : [...this.state.images,...images.hits],button : true}})})
-     .catch(error=> this.setState({error}))
-    },500); 
-  }
-}
-
- nextPage= ()=>{
+ const nextPage= ()=>{
+   setPage(page +1)
+   setButton("loading")
    setTimeout(() => {
-    this.setState(prevState=> ({ 
-      page : prevState.page +1,button :"loading"})
-  )
-   }, 500);
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    })
+   }, 200);
   }
 
-  toggleModal =(e)=>{
+  const toggleModal =(e)=>{
     if (e) {
       const url = e.currentTarget.dataset.url;
-      this.setState(({OpenModal}) => ({
-        OpenModal : !OpenModal,
-        largeImageURL :url 
-       })) 
-       return
+      setOpenModal(!OpenModal)
+      setlargeImageURL(url)
+      return
     } 
-    this.setState(({OpenModal}) => ({
-     OpenModal : !OpenModal,
-    }))
+    setOpenModal(!OpenModal)
   }
 
-  render(){
-    const {images,button,OpenModal,largeImageURL,name,error} = this.state
+  
+   
  return <>
-   <Searchbar onSubmit ={this.onSubmit}/>
+   <Searchbar onSubmit ={onSubmit}/>
    {error && <h1>{error.massage}</h1>}
-   {images.length !== 0 && <ImageGallery images={images} toggleModal={this.toggleModal}/>}
-   {button === true && images.length !== 0 && <Button nextPage={this.nextPage}/>}
+   {images.length !== 0 && <ImageGallery images={images} toggleModal={toggleModal}/>}
+   {button === true && images.length !== 0 && <Button nextPage={nextPage}/>}
    {button === "loading" &&  <BallTriangle color="#00BFFF" height={80} width={80} />}
-   {OpenModal && <Modal url={largeImageURL } toggleModal ={this.toggleModal} name={name}/>}
+   {OpenModal && <Modal url={largeImageURL } toggleModal ={toggleModal} name={name}/>}
   </>
-  }
+  
 }

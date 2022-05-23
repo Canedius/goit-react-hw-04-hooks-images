@@ -1,43 +1,34 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import {useEffect} from 'react';
 import s from '../Searchbar/Searchbar.module.css';
-export default class Modal extends React.Component {
-  static defaultProps ={
-    url:PropTypes.string.isRequired,
-    toggleModal:PropTypes.func.isRequired,
-    name:PropTypes.string.isRequired
-  }
+
+ const Modal =({url,toggleModal,name}) => {
+  useEffect(()=>{
+    const hendelKeydown = (e)=>{
+    if (e.code ==="Escape")toggleModal()
+    }
+    window.addEventListener("keydown",hendelKeydown)
+    return ()=>(window.removeEventListener("keydown",hendelKeydown))
+    })
   
- componentDidMount(){
-   window.addEventListener('keydown',this.hendelKeydown)
 
- }
-
- componentWillUnmount(){
-   window.removeEventListener('keydown',this.hendelKeydown)
- }
- hendelKeydown = e => {
-  if (e.code === 'Escape') {
-   this.props.toggleModal()
-  }
-}
-handelBackdropClick = e =>{
-  console.log();
+const handelBackdropClick = e =>{
   if (e.currentTarget === e.target) {
-    this.props.toggleModal()
+    toggleModal()
     
   }
 }
-
-
-
-  render(){
-    return <div className={s.overlay} onClick={this.handelBackdropClick}>
+    return <div className={s.overlay} onClick={handelBackdropClick}>
     <div className={s.modal}>
-      <img src={this.props.url} alt={this.props.name} />
+      <img src={url} alt={name} />
     </div>
   </div>
-  }
 }
 
 
+Modal.defaultProps ={
+  url:PropTypes.string.isRequired,
+  toggleModal:PropTypes.func.isRequired,
+  name:PropTypes.string.isRequired
+}
+export default Modal
