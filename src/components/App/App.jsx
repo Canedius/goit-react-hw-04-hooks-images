@@ -5,6 +5,7 @@ import ImageGallery from '../ImageGallery/ImageGallery'
 import Button from '../Button/Button'
 import Modal from '../Modal/Modal'
 import { mapper } from 'utils/mapper';
+import Loader from 'components/Loader/Loader';
 export const App =() => {
   const [name,setName] = useState("")
   const [images,setImages] = useState([])
@@ -18,11 +19,11 @@ const onSubmit =(name)=>{
   setName(name)
   setButton("loading")
   setImages([])
+  setPage(1)
 }
 useEffect(()=>{
-  if (button === "loading") {
-      fetch(`https://pixabay.com/api/?q=${name}&page=${page}&key=27418911-93356d597301e385c1931efc9&image_type=photo&orientation=horizontal&per_page=12&id`)
-      .then(res => {
+  if (button === "loading") { 
+    Loader(name,page).then(res => {
         if(res.ok){
         return res.json()}
       return Promise.reject(new Error('Нет такой картинки'))
@@ -35,9 +36,7 @@ useEffect(()=>{
        .catch(error=>setError({error})) 
        
   } 
-
 },[button, images, name, page])
-
 
  const nextPage= ()=>{
    setPage(page +1)

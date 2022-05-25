@@ -1,41 +1,38 @@
 import PropTypes from 'prop-types';
 import s from './Searchbar.module.css'
-import React from 'react';
-export class Searchbar extends React.Component {
-  static defaultProps ={
-    onSubmit:PropTypes.func.isRequired,
-  }
- state = {
-    name :''
- }
- NameChange = e => {
-    this.setState({ name: e.currentTarget.value });
+import {useState} from 'react';
+export const Searchbar= ({onSubmit}) => {
+
+const[name,setName ] = useState("")
+
+ const NameChange = e => {
+  setName(e.currentTarget.value) ;
   };
 
-  reset = () => {
-    this.setState({ name: ''});
+  const reset = () => {
+    setName("");
   };
 
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-    if (this.state.name.trim() === "") {
+    if (name.trim() === "") {
         return alert(`Ведите название запроса`)
     }
-    this.props.onSubmit(this.state.name);
-    this.reset();
+    onSubmit(name);
+    reset();
   };
 
 
-render() {
+
  return <header className={s.searchbar}>
- <form className={s.form} onSubmit={this.handleSubmit}>
+ <form className={s.form} onSubmit={handleSubmit}>
    <button type="submit" className={s.button}>
      <span className={s.buttonLabel} >Search</span>
    </button>
 
    <input
-     value={this.state.name}
-     onChange={this.NameChange}
+     value={name}
+     onChange={NameChange}
      className={s.input}
      type="text"
      autoComplete="off"
@@ -45,5 +42,8 @@ render() {
  </form>
 </header>
 }
-}
 export default Searchbar
+
+Searchbar.propTypes ={
+  onSubmit:PropTypes.func.isRequired,
+}
